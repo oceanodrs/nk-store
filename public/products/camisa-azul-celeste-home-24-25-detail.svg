@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="130 70 220 275" width="220" height="275" role="img" aria-label="Camisa Azul Celeste Home 24/25 — detalhe da gola">
+  <defs>
+    <radialGradient id="jvpz4yq-bg" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="jvpz4yq-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6CB4E4"/>
+      <stop offset="1" stop-color="#0D2A4F"/>
+    </linearGradient>
+    <linearGradient id="jvpz4yq-shade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity="0.28"/>
+      <stop offset="0.22" stop-color="#000" stop-opacity="0.04"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.10"/>
+      <stop offset="0.78" stop-color="#000" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.28"/>
+    </linearGradient>
+    <clipPath id="jvpz4yq-clip"><path d="M192,92 Q240,150 288,92 L350,108 Q398,140 432,206 L390,268 L342,238 L340,520 Q240,536 140,520 L138,238 L90,268 L48,206 Q82,140 130,108 Z"/></clipPath>
+    <filter id="jvpz4yq-blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect x="0" y="0" width="480" height="600" fill="#ECEEE8"/>
+  <rect x="0" y="0" width="480" height="600" fill="url(#jvpz4yq-bg)"/>
+  <ellipse cx="240" cy="550" rx="130" ry="14" fill="#000" opacity="0.18" filter="url(#jvpz4yq-blur)"/>
+  <g clip-path="url(#jvpz4yq-clip)">
+    <rect width="480" height="600" fill="#6CB4E4"/><rect x="0" y="262" width="480" height="54" fill="#0D2A4F"/><rect x="0" y="322" width="480" height="8" fill="#F4F4F0"/>
+    <path d="M432,206 L390,268" stroke="#0D2A4F" stroke-width="22"/>
+    <path d="M48,206 L90,268" stroke="#0D2A4F" stroke-width="22"/>
+    <path d="M192,92 Q240,150 288,92" fill="none" stroke="#0D2A4F" stroke-width="18"/>
+    
+    <path d="M168,300 Q182,400 170,500 M312,300 Q298,400 310,500" stroke="#fff" stroke-opacity="0.08" stroke-width="6" fill="none"/>
+    <rect x="0" y="0" width="480" height="600" fill="url(#jvpz4yq-shade)"/>
+  </g>
+  <g transform="translate(292 186)"><circle r="17" fill="#0D2A4F" stroke="rgba(0,0,0,.2)" stroke-width="2"/><text y="5" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="13" fill="#6CB4E4">NK</text></g>
+  <path d="M192,92 Q240,150 288,92 L350,108 Q398,140 432,206 L390,268 L342,238 L340,520 Q240,536 140,520 L138,238 L90,268 L48,206 Q82,140 130,108 Z" fill="none" stroke="#000" stroke-opacity="0.16" stroke-width="2"/>
+</svg>

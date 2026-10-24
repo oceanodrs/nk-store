@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" width="480" height="600" role="img" aria-label="Camisa Retrô Aros Verde e Branco 1992 — costas">
+  <defs>
+    <radialGradient id="j3gzim1-bg" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="j3gzim1-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F4F0"/>
+      <stop offset="1" stop-color="#127A3E"/>
+    </linearGradient>
+    <linearGradient id="j3gzim1-shade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity="0.28"/>
+      <stop offset="0.22" stop-color="#000" stop-opacity="0.04"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.10"/>
+      <stop offset="0.78" stop-color="#000" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.28"/>
+    </linearGradient>
+    <clipPath id="j3gzim1-clip"><path d="M192,92 Q240,112 288,92 L350,108 Q398,140 432,206 L390,268 L342,238 L340,520 Q240,536 140,520 L138,238 L90,268 L48,206 Q82,140 130,108 Z"/></clipPath>
+    <filter id="j3gzim1-blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect x="0" y="0" width="480" height="600" fill="#E6ECF0"/>
+  <rect x="0" y="0" width="480" height="600" fill="url(#j3gzim1-bg)"/>
+  <ellipse cx="240" cy="550" rx="130" ry="14" fill="#000" opacity="0.18" filter="url(#j3gzim1-blur)"/>
+  <g clip-path="url(#j3gzim1-clip)">
+    <rect width="480" height="600" fill="#F4F4F0"/><rect x="0" y="150" width="480" height="32" fill="#127A3E"/><rect x="0" y="214" width="480" height="32" fill="#127A3E"/><rect x="0" y="278" width="480" height="32" fill="#127A3E"/><rect x="0" y="342" width="480" height="32" fill="#127A3E"/><rect x="0" y="406" width="480" height="32" fill="#127A3E"/><rect x="0" y="470" width="480" height="32" fill="#127A3E"/><rect x="0" y="534" width="480" height="32" fill="#127A3E"/><rect x="0" y="598" width="480" height="32" fill="#127A3E"/>
+    <path d="M432,206 L390,268" stroke="#127A3E" stroke-width="22"/>
+    <path d="M48,206 L90,268" stroke="#127A3E" stroke-width="22"/>
+    <path d="M192,92 Q240,112 288,92" fill="none" stroke="#127A3E" stroke-width="16"/>
+    <text x="240" y="232" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" letter-spacing="6" fill="#127A3E">NK</text>
+         <text x="240" y="400" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="150" fill="#127A3E" stroke="rgba(0,0,0,.18)" stroke-width="3">8</text>
+    <path d="M168,300 Q182,400 170,500 M312,300 Q298,400 310,500" stroke="#fff" stroke-opacity="0.08" stroke-width="6" fill="none"/>
+    <rect x="0" y="0" width="480" height="600" fill="url(#j3gzim1-shade)"/>
+  </g>
+  
+  <path d="M192,92 Q240,112 288,92 L350,108 Q398,140 432,206 L390,268 L342,238 L340,520 Q240,536 140,520 L138,238 L90,268 L48,206 Q82,140 130,108 Z" fill="none" stroke="#000" stroke-opacity="0.16" stroke-width="2"/>
+</svg>
