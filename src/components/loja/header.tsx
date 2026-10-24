@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { getNavCategories, getStoreSettings } from "@/lib/catalog";
 import { formatBRL } from "@/lib/money";
+import { CartButton } from "./cart-button";
 import { MobileMenu } from "./mobile-menu";
 
 export async function Header() {
@@ -82,13 +83,7 @@ export async function Header() {
             >
               <Search className="size-5" aria-hidden />
             </Link>
-            <Link
-              href="/carrinho"
-              className="relative grid size-10 place-items-center rounded-full transition hover:bg-ink/5"
-              aria-label="Carrinho"
-            >
-              <ShoppingBag className="size-5" aria-hidden />
-            </Link>
+            <CartButton />
           </div>
         </div>
       </header>
