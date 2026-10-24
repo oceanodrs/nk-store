@@ -15,7 +15,7 @@ type Props = {
 };
 
 const chip =
-  "cursor-pointer select-none rounded-full border border-line bg-surface px-3.5 py-2 text-sm font-medium transition " +
+  "inline-block cursor-pointer select-none rounded-full border border-line bg-surface px-3.5 py-2 text-sm font-medium transition " +
   "hover:border-ink peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white " +
   "peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lime";
 
