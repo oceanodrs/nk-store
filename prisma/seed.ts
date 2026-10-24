@@ -8,6 +8,7 @@ import path from "node:path";
 import bcrypt from "bcryptjs";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { productDerivedFields, slugify } from "../src/lib/product-fields";
 import { hash, jerseySvg, type JerseyDesign } from "./jersey-svg";
 
 const db = new PrismaClient({
@@ -199,15 +200,6 @@ const products: SeedProduct[] = [
   },
 ];
 
-function slugify(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 /** Estoque determinístico por tamanho, com alguns casos de estoque baixo/zerado. */
 function stockFor(slug: string, size: string, index: number) {
   const base = Math.abs(hash(slug + size)) % 18; // 0..17
@@ -289,6 +281,12 @@ async function main() {
       active: true,
       weightGrams: 300,
       categoryId: categoryIds[p.category],
+      ...productDerivedFields({
+        name: p.name,
+        price: p.price,
+        salePrice: p.salePrice ?? null,
+        categoryName: categories.find((c) => c.slug === p.category)!.name,
+      }),
     };
     const product = await db.product.upsert({
       where: { slug },

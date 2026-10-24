@@ -45,6 +45,10 @@ model Product {
   description String
   price       Int // centavos
   salePrice   Int? // centavos; preço promocional opcional
+  // Campos derivados, recalculados sempre que o produto é salvo
+  // (src/lib/product-fields.ts): permitem ordenar/filtrar no banco.
+  finalPrice  Int              @default(0) // salePrice válido ou price
+  searchText  String           @default("") // nome + categoria, minúsculo e sem acentos
   active      Boolean          @default(true)
   featured    Boolean          @default(false)
   weightGrams Int              @default(300)
@@ -57,6 +61,7 @@ model Product {
 
   @@index([categoryId])
   @@index([active, featured])
+  @@index([finalPrice])
 }
 
 model ProductImage {
