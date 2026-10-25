@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Logo } from "@/components/logo";
 import { getNavCategories, getStoreSettings } from "@/lib/catalog";
+import { StoreLogo } from "./store-logo";
 
 export async function Footer() {
   const [categories, settings] = await Promise.all([getNavCategories(), getStoreSettings()]);
@@ -19,7 +19,7 @@ export async function Footer() {
       <div className="stripes-diagonal">
         <div className="container-nk grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="max-w-xs">
-            <Logo tone="dark" className="h-9 w-auto" />
+            <StoreLogo logoUrl={settings.logoUrl} storeName={settings.storeName} tone="dark" className="h-9 w-auto" />
             <p className="mt-4 text-sm leading-relaxed text-white/70">
               Camisas de futebol para quem vive o jogo, da arquibancada à pelada de domingo.
             </p>

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { Logo } from "@/components/logo";
 import { getNavCategories, getStoreSettings } from "@/lib/catalog";
 import { formatBRL } from "@/lib/money";
 import { CartButton } from "./cart-button";
 import { MobileMenu } from "./mobile-menu";
+import { StoreLogo } from "./store-logo";
 
 export async function Header() {
   const [categories, settings] = await Promise.all([getNavCategories(), getStoreSettings()]);
@@ -43,8 +43,8 @@ export async function Header() {
         <div className="container-nk flex h-16 items-center gap-3 lg:h-20">
           <MobileMenu links={links} />
 
-          <Link href="/" className="shrink-0" aria-label="NK STORE — página inicial">
-            <Logo className="h-8 w-auto lg:h-9" />
+          <Link href="/" className="shrink-0" aria-label={`${settings.storeName} — página inicial`}>
+            <StoreLogo logoUrl={settings.logoUrl} storeName={settings.storeName} className="h-8 w-auto lg:h-9" />
           </Link>
 
           <nav aria-label="Principal" className="ml-8 hidden lg:block">
