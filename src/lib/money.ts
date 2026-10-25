@@ -17,6 +17,12 @@ export function parseBRL(input: string): number | null {
   return Math.round(Number(normalized) * 100);
 }
 
+/** 19990 => "199,90" (valor para campos de formulário) */
+export function centsToInput(cents: number | null | undefined) {
+  if (cents == null) return "";
+  return (cents / 100).toFixed(2).replace(".", ",");
+}
+
 /** Preço efetivo de um produto (promocional quando válido). */
 export function effectivePrice(product: { price: number; salePrice: number | null }) {
   return product.salePrice != null && product.salePrice < product.price ? product.salePrice : product.price;
