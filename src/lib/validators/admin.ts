@@ -104,6 +104,106 @@ export const categoryFormSchema = z.object({
   active: checkbox,
 });
 
+const optionalMoney = (label: string) =>
+  z
+    .string()
+    .optional()
+    .transform((s, ctx) => {
+      if (!s?.trim()) return null;
+      const cents = parseBRL(s);
+      if (cents == null || cents <= 0) {
+        ctx.addIssue({ code: "custom", message: `${label} inválido.` });
+        return z.NEVER;
+      }
+      return cents;
+    });
+
+/** "2026-12-31" (input date) => Date no fuso de Brasília; início ou fim do dia. */
+const brDate = (edge: "start" | "end") =>
+  z
+    .string()
+    .optional()
+    .transform((s, ctx) => {
+      if (!s) return null;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        ctx.addIssue({ code: "custom", message: "Data inválida." });
+        return z.NEVER;
+      }
+      return new Date(`${s}T${edge === "start" ? "00:00:00" : "23:59:59"}-03:00`);
+    });
+
+export const couponFormSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9_-]{3,30}$/, "Use de 3 a 30 letras, números, - ou _ (sem espaços)."),
+    type: z.enum(["PERCENT", "FIXED"], "Escolha o tipo."),
+    value: z.string().trim().min(1, "Informe o valor."),
+    minSubtotal: optionalMoney("Valor mínimo"),
+    startsAt: brDate("start"),
+    expiresAt: brDate("end"),
+    usageLimit: z
+      .string()
+      .optional()
+      .transform((s, ctx) => {
+        if (!s?.trim()) return null;
+        const n = Number(s);
+        if (!Number.isInteger(n) || n < 1) {
+          ctx.addIssue({ code: "custom", message: "Use um número inteiro maior que zero." });
+          return z.NEVER;
+        }
+        return n;
+      }),
+    active: checkbox,
+  })
+  .transform((d, ctx) => {
+    // percentual: 1 a 100 | valor fixo: reais => centavos
+    let value: number | null;
+    if (d.type === "PERCENT") {
+      const n = Number(d.value.replace(",", "."));
+      value = Number.isInteger(n) && n >= 1 && n <= 100 ? n : null;
+      if (value == null) ctx.addIssue({ code: "custom", path: ["value"], message: "Percentual inteiro de 1 a 100." });
+    } else {
+      value = parseBRL(d.value);
+      if (value == null || value <= 0) ctx.addIssue({ code: "custom", path: ["value"], message: "Valor inválido, ex.: 20,00." });
+    }
+    if (d.startsAt && d.expiresAt && d.expiresAt < d.startsAt) {
+      ctx.addIssue({ code: "custom", path: ["expiresAt"], message: "A data final é anterior à inicial." });
+    }
+    return { ...d, value: value ?? 0 };
+  });
+
+export const settingsFormSchema = z.object({
+  storeName: z.string().trim().min(2, "Mínimo de 2 caracteres.").max(60),
+  logoUrl: z
+    .string()
+    .trim()
+    .optional()
+    .transform((s) => s || null)
+    .refine((s) => s == null || isAllowedImageUrl(s), "Logo inválido."),
+  email: z.union([z.literal(""), z.email("E-mail inválido.")]).transform((s) => s || null),
+  phone: z.string().trim().max(30).transform((s) => s || null),
+  whatsapp: z
+    .string()
+    .transform((s) => s.replace(/\D/g, ""))
+    .refine((s) => s === "" || (s.length >= 12 && s.length <= 13), "Use DDI + DDD + número, ex.: 5511987654321.")
+    .transform((s) => s || null),
+  instagram: z
+    .string()
+    .trim()
+    .transform((s) => s.replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, ""))
+    .refine((s) => s === "" || /^[\w.]{1,30}$/.test(s), "Usuário do Instagram inválido.")
+    .transform((s) => s || null),
+  address: z.string().trim().max(200).transform((s) => s || null),
+  originZipCode: z
+    .string()
+    .transform((s) => s.replace(/\D/g, ""))
+    .refine((s) => s.length === 8, "CEP de origem com 8 dígitos."),
+  freeShippingThreshold: optionalMoney("Valor do frete grátis"),
+});
+
 /** Converte erros do Zod em { campo: mensagem } para exibir ao lado de cada campo. */
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
