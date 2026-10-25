@@ -54,7 +54,7 @@ function Footer({ email }: { email: string }) {
       >
         <LogOut className="size-4" aria-hidden /> Sair
       </button>
-      <p className="truncate px-3 pt-2 text-xs text-white/40" title={email}>
+      <p className="truncate px-3 pt-2 text-xs text-white/65" title={email}>
         {email}
       </p>
     </div>
@@ -73,9 +73,10 @@ export function AdminNav({ email }: { email: string }) {
   return (
     <>
       {/* desktop */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-ink p-4 lg:flex">
-        <Link href="/admin" className="mb-8 mt-2 block px-2" aria-label="Painel NK STORE">
-          <Logo tone="dark" className="h-8 w-auto" />
+      <aside aria-label="Navegação do painel" className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-ink p-4 lg:flex">
+        <Link href="/admin" className="mb-8 mt-2 block px-2">
+          <Logo tone="dark" decorative className="h-8 w-auto" />
+          <span className="sr-only">NK STORE — painel</span>
         </Link>
         <nav aria-label="Painel" className="flex-1">
           <NavLinks />
@@ -85,8 +86,9 @@ export function AdminNav({ email }: { email: string }) {
 
       {/* celular */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-ink px-4 lg:hidden">
-        <Link href="/admin" aria-label="Painel NK STORE">
-          <Logo tone="dark" className="h-7 w-auto" />
+        <Link href="/admin">
+          <Logo tone="dark" decorative className="h-7 w-auto" />
+          <span className="sr-only">NK STORE — painel</span>
         </Link>
         <button
           type="button"
@@ -120,7 +122,7 @@ export function AdminNav({ email }: { email: string }) {
               <X className="size-5" aria-hidden />
             </button>
           </div>
-          <nav aria-label="Painel" className="flex-1">
+          <nav aria-label="Painel (menu móvel)" className="flex-1">
             <NavLinks onNavigate={() => ref.current?.close()} />
           </nav>
           <Footer email={email} />

@@ -14,7 +14,7 @@
   --color-lime-soft: #eef9c8;
   --color-danger: #c0262d;
   --color-success: #1d7a46;
-  --color-warning: #a35f00;
+  --color-warning: #8a4f00; /* ≥ 4.5:1 inclusive sobre o fundo bg-warning/10 */
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-barlow), "Arial Narrow", ui-sans-serif, sans-serif;

@@ -85,7 +85,7 @@ export default async function AdminPedidoPage({ params }: { params: Promise<{ id
           </section>
         </div>
 
-        <aside className="space-y-6">
+        <aside aria-label="Ações e dados do pedido" className="space-y-6">
           <section className="card" aria-labelledby="p-status">
             <h2 id="p-status" className="display mb-4 text-2xl">Atualizar pedido</h2>
             {/* key: ao mudar o status, o formulário recomeça com as novas opções */}

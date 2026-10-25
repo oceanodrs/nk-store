@@ -11,7 +11,7 @@ export function SortSelect({ basePath, filters }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="ordenar" className="hidden text-sm text-muted sm:block">
+      <label htmlFor="ordenar" className="sr-only text-sm text-muted sm:not-sr-only">
         Ordenar por
       </label>
       <select

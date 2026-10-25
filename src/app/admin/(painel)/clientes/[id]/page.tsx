@@ -48,7 +48,7 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
           </ul>
         </section>
 
-        <aside className="space-y-6">
+        <aside aria-label="Dados do cliente" className="space-y-6">
           <section className="card text-sm" aria-labelledby="c-dados">
             <h2 id="c-dados" className="display text-2xl">Dados</h2>
             <p className="mt-3"><a href={`mailto:${customer.email}`} className="hover:underline">{customer.email}</a></p>

@@ -36,6 +36,7 @@ export function RevenueChart({ days }: { days: Day[] }) {
               <li key={d.fullLabel} className="group relative flex h-full flex-1 items-end justify-center">
                 <span
                   tabIndex={0}
+                  role="img"
                   aria-label={`${d.fullLabel}: ${formatBRL(d.revenue)} em ${d.orders} ${d.orders === 1 ? "pedido" : "pedidos"}`}
                   className="block w-full max-w-6 rounded-t-[4px] bg-ink outline-none transition group-hover:bg-ink-3 focus-visible:bg-ink-3"
                   style={{ height: d.revenue > 0 ? `max(2px, ${(d.revenue / top) * 100}%)` : "0" }}

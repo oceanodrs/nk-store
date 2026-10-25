@@ -6,8 +6,9 @@ export default function NotFound() {
     <main className="relative grid min-h-dvh place-items-center overflow-hidden bg-ink px-4 text-white">
       <div className="stripes-diagonal absolute inset-0" aria-hidden />
       <div className="relative text-center">
-        <Link href="/" aria-label="NK STORE — página inicial" className="inline-block">
-          <Logo tone="dark" className="mx-auto h-9 w-auto" />
+        <Link href="/" className="inline-block">
+          <Logo tone="dark" decorative className="mx-auto h-9 w-auto" />
+          <span className="sr-only">NK STORE — página inicial</span>
         </Link>
         <p className="display mt-10 text-[clamp(6rem,24vw,12rem)] text-lime">404</p>
         <h1 className="display text-3xl sm:text-4xl">Bola fora!</h1>

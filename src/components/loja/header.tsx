@@ -23,7 +23,7 @@ export async function Header() {
         Pular para o conteúdo
       </a>
 
-      <div className="bg-ink text-white">
+      <div role="region" aria-label="Avisos da loja" className="bg-ink text-white">
         <p className="container-nk py-2 text-center text-xs font-medium tracking-wide sm:text-[13px]">
           {settings.freeShippingThreshold ? (
             <>
@@ -43,8 +43,9 @@ export async function Header() {
         <div className="container-nk flex h-16 items-center gap-3 lg:h-20">
           <MobileMenu links={links} />
 
-          <Link href="/" className="shrink-0" aria-label={`${settings.storeName} — página inicial`}>
-            <StoreLogo logoUrl={settings.logoUrl} storeName={settings.storeName} className="h-8 w-auto lg:h-9" />
+          <Link href="/" className="shrink-0">
+            <StoreLogo logoUrl={settings.logoUrl} storeName={settings.storeName} decorative className="h-8 w-auto lg:h-9" />
+            <span className="sr-only">{settings.storeName} — página inicial</span>
           </Link>
 
           <nav aria-label="Principal" className="ml-8 hidden lg:block">

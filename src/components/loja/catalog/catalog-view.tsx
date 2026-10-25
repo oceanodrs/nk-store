@@ -67,6 +67,7 @@ export async function CatalogView({ filters, basePath, title, eyebrow, descripti
         </aside>
 
         <section aria-labelledby="resultado">
+          <h2 className="sr-only">Camisas encontradas</h2>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
             <p id="resultado" className="text-sm text-muted" aria-live="polite">
               <strong className="text-ink">{total}</strong> {total === 1 ? "camisa encontrada" : "camisas encontradas"}
