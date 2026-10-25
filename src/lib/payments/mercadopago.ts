@@ -13,9 +13,15 @@ export function isMercadoPagoConfigured() {
   return !!process.env.MP_ACCESS_TOKEN;
 }
 
-/** URL pública que o Mercado Pago usa para notificar (túnel em dev, domínio em produção). */
-function notificationBaseUrl() {
-  return (process.env.MP_NOTIFICATION_BASE_URL || siteConfig.url).replace(/\/$/, "");
+/**
+ * URL de notificação informada em cada pedido. Por padrão fica vazia e o Mercado
+ * Pago usa a URL cadastrada no painel (Webhooks), que é a única assinada com o
+ * MP_WEBHOOK_SECRET. Preencher MP_NOTIFICATION_BASE_URL só é útil sem segredo
+ * configurado (as notificações por pedido chegam com outra assinatura).
+ */
+function notificationUrl() {
+  const base = process.env.MP_NOTIFICATION_BASE_URL?.replace(/\/$/, "");
+  return base ? `${base}/api/webhooks/mercadopago?source_news=webhooks` : undefined;
 }
 
 type OrderForPreference = {
@@ -85,7 +91,7 @@ export async function createPreference(order: OrderForPreference) {
       back_urls: { success: returnUrl("sucesso"), pending: returnUrl("pendente"), failure: returnUrl("falha") },
       // o retorno automático exige URL https (túnel ou produção)
       ...(isHttps ? { auto_return: "approved" } : {}),
-      notification_url: `${notificationBaseUrl()}/api/webhooks/mercadopago?source_news=webhooks`,
+      ...(notificationUrl() ? { notification_url: notificationUrl() } : {}),
       statement_descriptor: "NKSTORE",
       payment_methods: { installments: 6 },
       ...(order.reservationExpiresAt
