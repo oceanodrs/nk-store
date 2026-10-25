@@ -20,9 +20,9 @@ next-env.d.ts
 .env*.local
 !.env.example
 
-# uploads locais feitos pelo painel em desenvolvimento
-/public/uploads/*
-!/public/uploads/.gitkeep
+# uploads locais feitos pelo painel em desenvolvimento (servidos por /uploads/[arquivo])
+/storage/uploads/*
+!/storage/uploads/.gitkeep
 
 # testes
 /coverage
