@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  // permite abrir o `next dev` pelo túnel (Cloudflare/ngrok) ao testar o webhook
+  allowedDevOrigins: ["*.trycloudflare.com", "*.ngrok-free.app", "*.ngrok.app"],
 };
 
 export default nextConfig;
