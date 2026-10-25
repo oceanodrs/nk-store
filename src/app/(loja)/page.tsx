@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/loja/product-card";
 import { ShirtImage } from "@/components/shirt-image";
 import { getCategoriesWithCount, getFeaturedProducts, getNewArrivals, getStoreSettings } from "@/lib/catalog";
 import { formatBRL } from "@/lib/money";
+import { absoluteUrl, siteConfig } from "@/lib/site";
 
 // a vitrine é regenerada a cada 60s (ISR)
 export const revalidate = 60;
@@ -30,8 +31,33 @@ export default async function HomePage() {
     { icon: RefreshCw, title: "Troca fácil", text: "Primeira troca de tamanho grátis" },
   ];
 
+  // dados estruturados da loja e da busca interna (schema.org)
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      name: settings.storeName,
+      url: siteConfig.url,
+      logo: absoluteUrl("/opengraph-image"),
+      ...(settings.email ? { email: settings.email } : {}),
+      ...(settings.instagram ? { sameAs: [`https://instagram.com/${settings.instagram}`] } : {}),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: settings.storeName,
+      url: siteConfig.url,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${absoluteUrl("/produtos")}?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ];
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       {/* HERO */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="stripes-diagonal absolute inset-0" aria-hidden />

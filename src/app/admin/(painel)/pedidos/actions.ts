@@ -12,7 +12,12 @@ import type { FormState } from "@/lib/validators/admin";
 
 const statusSchema = z.object({
   to: z.enum(ORDER_STATUSES, "Escolha o novo status."),
-  trackingCode: z.string().trim().max(40).optional(),
+  trackingCode: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .refine((s) => s === "" || /^[A-Z0-9-]{5,40}$/.test(s), "Código de rastreio inválido.")
+    .optional(),
   note: z.string().trim().max(300).optional(),
   restock: z.preprocess((v) => v === "on", z.boolean()),
 });
