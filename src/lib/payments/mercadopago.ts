@@ -136,6 +136,14 @@ export async function getPayment(paymentId: string): Promise<VerifiedPayment> {
   };
 }
 
+/** Ids dos pagamentos de um pedido no Mercado Pago (mais recentes primeiro). */
+export async function findPaymentIdsForOrder(orderId: number) {
+  const res = await new Payment(client()).search({
+    options: { external_reference: String(orderId), sort: "date_created", criteria: "desc", limit: 10 },
+  });
+  return (res.results ?? []).map((p) => String(p.id)).filter(Boolean);
+}
+
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   bank_transfer: "Pix",
   ticket: "Boleto",

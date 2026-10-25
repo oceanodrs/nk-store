@@ -20,6 +20,22 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   CANCELED: "Cancelado",
 };
 
+/** Pedidos que contam como venda (pagos em diante, não cancelados). */
+export const SOLD_STATUSES: OrderStatus[] = ["PAID", "PICKING", "SHIPPED", "DELIVERED"];
+
+/**
+ * Transições que o painel permite. "Pago" nunca é manual: só o Mercado Pago
+ * confirma pagamento (webhook ou botão "verificar pagamento").
+ */
+export const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  AWAITING_PAYMENT: ["CANCELED"],
+  PAID: ["PICKING", "CANCELED"],
+  PICKING: ["SHIPPED", "CANCELED"],
+  SHIPPED: ["DELIVERED"],
+  DELIVERED: [],
+  CANCELED: [],
+};
+
 export const COUPON_TYPES = ["PERCENT", "FIXED"] as const;
 export type CouponType = (typeof COUPON_TYPES)[number];
 

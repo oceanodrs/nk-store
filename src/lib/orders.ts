@@ -1,7 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { getStoreSettings } from "@/lib/catalog";
-import { formatOrderNumber, type OrderStatus } from "@/lib/constants";
+import { formatOrderNumber, ORDER_STATUS_LABELS, STATUS_TRANSITIONS, type OrderStatus } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { PAYMENT_METHOD_LABELS, type VerifiedPayment } from "@/lib/payments/mercadopago";
 import { calculateTotals, evaluateCoupon, normalizeCouponCode } from "@/lib/pricing";
@@ -279,6 +279,72 @@ export async function cancelOrder(orderId: number, note: string) {
     await tx.orderStatusHistory.create({ data: { orderId, fromStatus: order.status, toStatus: "CANCELED", note } });
     return true;
   });
+}
+
+export class OrderTransitionError extends Error {}
+
+/**
+ * Mudança de status feita pelo painel (separação, envio, entrega, cancelamento).
+ * Valida a transição e grava o histórico.
+ */
+export async function updateOrderStatus(params: {
+  orderId: number;
+  to: OrderStatus;
+  trackingCode?: string | null;
+  note?: string | null;
+  restock?: boolean;
+}) {
+  const { orderId, to } = params;
+  const order = await db.order.findUnique({ where: { id: orderId }, include: { items: true } });
+  if (!order) throw new OrderTransitionError("Pedido não encontrado.");
+
+  const from = order.status as OrderStatus;
+  if (!STATUS_TRANSITIONS[from]?.includes(to)) {
+    throw new OrderTransitionError(`Não é possível mudar de "${ORDER_STATUS_LABELS[from]}" para "${ORDER_STATUS_LABELS[to]}".`);
+  }
+  const tracking = params.trackingCode?.trim() || order.trackingCode;
+  if (to === "SHIPPED" && !tracking) throw new OrderTransitionError("Informe o código de rastreio para marcar como enviado.");
+
+  const lines = order.items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }));
+  const userNote = params.note?.trim() || null;
+
+  await db.$transaction(async (tx) => {
+    const claimed = await tx.order.updateMany({
+      where: { id: orderId, status: from },
+      data: { status: to, trackingCode: tracking },
+    });
+    if (claimed.count !== 1) throw new OrderTransitionError("O pedido foi alterado por outra pessoa. Recarregue a página.");
+
+    let note = userNote;
+    if (to === "CANCELED") {
+      if (from === "AWAITING_PAYMENT") {
+        await releaseReservedStock(tx, lines);
+      } else {
+        if (params.restock) {
+          // pedido pago cancelado: devolve as unidades ao estoque
+          for (const l of lines) {
+            await tx.productVariant.update({ where: { id: l.variantId }, data: { stock: { increment: l.quantity } } });
+          }
+        }
+        note = [userNote, params.restock ? "Itens devolvidos ao estoque." : null, "Lembre-se de estornar o pagamento no Mercado Pago."]
+          .filter(Boolean)
+          .join(" ");
+      }
+    }
+    if (to === "SHIPPED") note = [userNote, `Rastreio: ${tracking}`].filter(Boolean).join(" · ");
+
+    await tx.orderStatusHistory.create({ data: { orderId, fromStatus: from, toStatus: to, note: note ?? "Atualizado pelo painel" } });
+  });
+}
+
+/** Atualiza só o código de rastreio (sem mudar status). */
+export async function updateTrackingCode(orderId: number, trackingCode: string | null) {
+  const order = await db.order.findUnique({ where: { id: orderId }, select: { status: true, trackingCode: true } });
+  if (!order) throw new OrderTransitionError("Pedido não encontrado.");
+  const code = trackingCode?.trim() || null;
+  if (code === order.trackingCode) return;
+  await db.order.update({ where: { id: orderId }, data: { trackingCode: code } });
+  await addHistory(orderId, order.status, code ? `Código de rastreio: ${code}` : "Código de rastreio removido");
 }
 
 /** Cancela pedidos cuja reserva venceu sem pagamento. */
