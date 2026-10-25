@@ -119,6 +119,29 @@
     @apply px-4 py-2 text-xs;
   }
 
+  /* texto corrido das páginas institucionais */
+  .prose-nk {
+    @apply max-w-prose space-y-4 leading-relaxed text-ink/85;
+  }
+  .prose-nk h2 {
+    @apply font-display pt-6 text-3xl font-extrabold uppercase leading-tight tracking-tight text-ink;
+  }
+  .prose-nk h3 {
+    @apply pt-2 text-base font-bold text-ink;
+  }
+  .prose-nk ul {
+    @apply list-disc space-y-1.5 pl-5;
+  }
+  .prose-nk ol {
+    @apply list-decimal space-y-1.5 pl-5;
+  }
+  .prose-nk a {
+    @apply font-semibold text-ink underline underline-offset-2;
+  }
+  .prose-nk strong {
+    @apply font-semibold text-ink;
+  }
+
   /* listras diagonais inspiradas em camisas, usadas como textura */
   .stripes-diagonal {
     background-image: repeating-linear-gradient(
