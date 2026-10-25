@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0e1311"/>
+  <path d="M14 14h40l-6 36H8z" fill="#c8f031"/>
+  <path d="M41 14h5l-6 36h-5z" fill="#0e1311" opacity="0.9"/>
+  <text x="29" y="42" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-style="italic" font-size="24" fill="#0e1311">NK</text>
+</svg>

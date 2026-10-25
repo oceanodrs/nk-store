@@ -99,7 +99,15 @@ export default async function HomePage() {
                     className={`absolute aspect-[4/5] overflow-hidden rounded-[var(--radius-xl2)] shadow-2xl shadow-black/40 ring-1 ring-white/10 transition duration-500 hover:-translate-y-1 ${pos}`}
                   >
                     {p.images[0] && (
-                      <ShirtImage src={p.images[0].url} alt="" fill priority sizes="(min-width: 1024px) 300px, 50vw" className="object-cover" />
+                      <ShirtImage
+                        src={p.images[0].url}
+                        alt=""
+                        fill
+                        // a camisa central é o LCP; as laterais só não esperam o lazy-load
+                        {...(i === 0 ? { priority: true } : { loading: "eager" as const })}
+                        sizes="(min-width: 1024px) 300px, 50vw"
+                        className="object-cover"
+                      />
                     )}
                   </div>
                 );
@@ -164,8 +172,8 @@ export default async function HomePage() {
         <section className="container-nk pt-16 sm:pt-24" aria-labelledby="titulo-destaques">
           <SectionHeading id="titulo-destaques" eyebrow="Os mais pedidos" title="Destaques" href="/produtos" />
           <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 lg:grid-cols-4">
-            {featured.slice(0, 4).map((p, i) => (
-              <ProductCard key={p.id} product={p} priority={i < 2} />
+            {featured.slice(0, 4).map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
