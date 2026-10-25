@@ -4,13 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, Package, X } from "lucide-react";
+import { ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, Package, Receipt, Settings, TicketPercent, Users, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/pedidos", label: "Pedidos", icon: Receipt },
   { href: "/admin/produtos", label: "Produtos", icon: Package },
   { href: "/admin/categorias", label: "Categorias", icon: FolderTree },
+  { href: "/admin/clientes", label: "Clientes", icon: Users },
+  { href: "/admin/cupons", label: "Cupons", icon: TicketPercent },
+  { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
