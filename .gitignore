@@ -14,6 +14,7 @@ next-env.d.ts
 /src/generated/
 /prisma/*.db
 /prisma/*.db-journal
+/prisma/test.db*
 
 # variáveis de ambiente: NUNCA versionar credenciais
 .env
