@@ -121,7 +121,9 @@ export async function getPayment(paymentId: string): Promise<VerifiedPayment> {
     id: String(p.id),
     status: p.status ?? "unknown",
     externalReference: p.external_reference ?? null,
-    amount: Math.round((p.transaction_amount ?? 0) * 100),
+    // o MP separa produtos (transaction_amount) e frete (shipping_amount).
+    // Não usamos total_paid_amount porque ele inclui juros de parcelamento.
+    amount: Math.round(((p.transaction_amount ?? 0) + (p.shipping_amount ?? 0)) * 100),
     currency: p.currency_id ?? "",
     paymentTypeId: p.payment_type_id ?? null,
     paymentMethodId: p.payment_method_id ?? null,

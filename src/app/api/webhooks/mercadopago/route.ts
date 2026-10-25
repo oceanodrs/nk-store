@@ -60,7 +60,10 @@ export async function POST(req: Request) {
           payload: JSON.stringify({ body, result }),
         },
       })
-      .catch(() => {}); // já registrado antes: tudo bem
+      .catch((err: { code?: string }) => {
+        // P2002 = já registrado antes (notificação repetida): tudo bem
+        if (err?.code !== "P2002") console.error("[webhook] falha ao registrar evento", err);
+      });
 
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
