@@ -1,12 +1,10 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
+import { createAdapter } from "@/lib/db-adapter";
 
-// Em produção com PostgreSQL (Neon), troque o adapter por @prisma/adapter-pg
-// (veja README > Deploy). O resto do código não muda.
+// SQLite no desenvolvimento, PostgreSQL (Neon) em produção: o adapter é
+// escolhido pela DATABASE_URL (veja src/lib/db-adapter.ts e prisma.config.ts).
 function createClient() {
-  const url = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-  const adapter = new PrismaBetterSqlite3({ url });
-  return new PrismaClient({ adapter });
+  return new PrismaClient({ adapter: createAdapter() });
 }
 
 // Reaproveita a conexão entre recarregamentos do `next dev`.

@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "vercel-build": "prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "seed": "tsx prisma/seed.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "demo:reset": "tsx --conditions=react-server scripts/demo-reset.mts",
+    "db:pg:sync": "node scripts/sync-postgres-schema.mjs",
     "postinstall": "prisma generate"
   },
   "engines": {
@@ -19,6 +22,7 @@
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",
+    "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "@vercel/blob": "^2.8.2",
     "bcryptjs": "^3.0.3",

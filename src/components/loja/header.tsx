@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { getNavCategories, getStoreSettings } from "@/lib/catalog";
+import { isDemoMode } from "@/lib/demo/config";
 import { formatBRL } from "@/lib/money";
 import { CartButton } from "./cart-button";
 import { MobileMenu } from "./mobile-menu";
@@ -37,6 +38,12 @@ export async function Header() {
           </span>
           Pix, cartão ou boleto
         </p>
+        {isDemoMode() && (
+          <p className="border-t border-white/10 bg-lime px-4 py-1.5 text-center text-xs font-semibold text-ink">
+            Loja de demonstração (portfólio): produtos fictícios e pagamentos em modo de teste.{" "}
+            <Link href="/admin/login" className="underline underline-offset-2">Ver o painel</Link>
+          </p>
+        )}
       </div>
 
       <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/85 backdrop-blur-md">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/logo";
 import { getAdminSession } from "@/lib/auth";
+import { demoAdminCredentials } from "@/lib/demo/config";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Entrar" };
@@ -34,7 +35,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <Logo className="h-9 w-auto lg:hidden" />
           <h1 className="display mt-8 text-4xl lg:mt-0">Entrar no painel</h1>
           <p className="mt-2 text-sm text-muted">Acesso restrito à equipe da loja.</p>
-          <LoginForm callbackUrl={target} />
+          <LoginForm callbackUrl={target} demo={demoAdminCredentials()} />
         </div>
       </div>
     </main>

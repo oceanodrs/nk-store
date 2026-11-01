@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckoutForm } from "@/components/loja/checkout/checkout-form";
+import { isDemoMode } from "@/lib/demo/config";
 
 export const metadata: Metadata = {
   title: "Finalizar compra",
@@ -12,7 +13,7 @@ export default function CheckoutPage() {
     <div className="container-nk pt-8 sm:pt-12">
       <Link href="/carrinho" className="text-sm text-muted hover:text-ink">← Voltar ao carrinho</Link>
       <h1 className="display mt-2 text-5xl sm:text-6xl">Finalizar compra</h1>
-      <CheckoutForm />
+      <CheckoutForm demo={isDemoMode()} />
     </div>
   );
 }

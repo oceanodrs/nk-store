@@ -119,14 +119,14 @@ loja pronta para vender, mas roda com **dados de demonstração e credenciais de
 | Framework | **Next.js 16** (App Router, Server Components, Server Actions, Turbopack) + **React 19** |
 | Linguagem | **TypeScript** (strict) |
 | Estilo | **Tailwind CSS 4**, componentes próprios, ícones `lucide-react`, fontes Barlow Condensed + Inter (`next/font`) |
-| Banco | **Prisma 7** + **SQLite** (dev), pronto para **PostgreSQL/Neon** (produção) |
+| Banco | **Prisma 7** + **SQLite** (dev) e **PostgreSQL/Neon** (produção), escolhidos pela `DATABASE_URL` |
 | Autenticação | **NextAuth (Auth.js) v4**, credenciais + **bcrypt**, sessão JWT |
 | Pagamento | **Mercado Pago Checkout Pro**, SDK oficial `mercadopago` v3, com webhook |
 | Frete | Interface única de provedor, com **frete simulado** por região do CEP (Melhor Envio plugável) |
 | Endereço | **ViaCEP** |
 | Validação | **Zod 4** em todas as entradas |
 | Uploads | Pasta local (dev) ou **Vercel Blob** (produção) |
-| Testes | **Vitest** (49 testes) |
+| Testes | **Vitest** (53 testes) |
 
 ---
 
@@ -176,6 +176,8 @@ O seed é idempotente (pode rodar de novo) e cria 1 admin, 4 categorias, 16 prod
 | `npm run dev` | Servidor de desenvolvimento |
 | `npm run build` / `npm start` | Build e servidor de produção |
 | `npm run seed` | Popula o banco com os dados de demonstração |
+| `npm run demo:reset -- --confirmar` | Restaura a loja de demonstração (apaga pedidos e produtos criados) |
+| `npm run db:pg:sync` | Atualiza o schema do PostgreSQL a partir do principal |
 | `npm test` | Testes automatizados (usa um banco SQLite próprio) |
 | `npm run lint` / `npm run typecheck` | ESLint e checagem de tipos |
 
@@ -196,7 +198,9 @@ no `.gitignore`.
 | `MP_WEBHOOK_SECRET` | recomendada | Assinatura secreta exibida no painel de Webhooks do Mercado Pago |
 | `MP_WEBHOOK_STRICT_SIGNATURE` | não | `true` recusa notificações com assinatura inválida (veja [Decisões](#decisões)) |
 | `MP_NOTIFICATION_BASE_URL` | não | Se preenchida, cada pedido informa sua URL de notificação. Vazia = usa a URL do painel |
-| `CRON_SECRET` | produção | Protege `/api/cron/expirar-pedidos` (Vercel Cron) |
+| `CRON_SECRET` | produção | Protege `/api/cron/diario` (Vercel Cron) |
+| `DATABASE_URL_UNPOOLED` | com Neon | Conexão direta usada nas migrações (criada pela integração do Neon) |
+| `DEMO_MODE` / `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` | portfólio | Modo demonstração com reset diário (veja [Deploy](#modo-demonstração-portfólio-público)) |
 | `SHIPPING_PROVIDER` | não | `simulado` (padrão). Interface pronta para `melhorenvio` |
 | `MELHOR_ENVIO_TOKEN` / `MELHOR_ENVIO_ENV` / `MELHOR_ENVIO_USER_AGENT` | não | Reservadas para o provedor Melhor Envio |
 | `STORAGE_DRIVER` | não | `local` (dev) ou `vercel-blob` (produção) |
@@ -256,7 +260,7 @@ cloudflared tunnel --url http://localhost:3000
 npm test
 ```
 
-São **49 testes** (Vitest) nas regras críticas. Os testes de banco usam um SQLite próprio (`prisma/test.db`), recriado a
+São **53 testes** (Vitest) nas regras críticas. Os testes de banco usam um SQLite próprio (`prisma/test.db`), recriado a
 cada execução, e **nunca tocam no `dev.db`**.
 
 | Arquivo | O que garante |
@@ -265,6 +269,8 @@ cada execução, e **nunca tocam no `dev.db`**.
 | `tests/stock.test.ts` | Reserva só com unidades disponíveis, transação desfeita se faltar estoque, **duas compras simultâneas pela última unidade (só uma consegue)**, baixa no pagamento e liberação no cancelamento |
 | `tests/webhook.test.ts` | Rota real do webhook com a API do MP simulada: pagamento aprovado → Pago + baixa de estoque, **idempotência**, valor divergente ignorado, notificação forjada ignorada, recusa mantém o pedido aberto, cancelamento libera a reserva, uso do cupom contado só no pagamento, assinatura estrita (401) |
 | `tests/webhook-signature.test.ts` | Validação HMAC do `x-signature` (formato documentado, id em minúsculas, partes ausentes, segredo errado, proteção contra replay) |
+| `tests/demo-reset.test.ts` | Reset da demonstração: recusa sem `DEMO_MODE`, apaga o que visitantes criaram, restaura catálogo, pedidos de exemplo (numeração NK-000001) e admin de demonstração |
+| `tests/schema-sync.test.ts` | Schema do PostgreSQL idêntico ao principal e migração inicial com todas as tabelas |
 | `tests/validators.test.ts` | Dinheiro, número do pedido, CPF, schema do checkout (o navegador **não consegue enviar preço**), frete grátis e frete simulado |
 
 ---
@@ -303,47 +309,68 @@ Técnicas usadas:
 
 ## Deploy na Vercel
 
-O SQLite não funciona na Vercel (sistema de arquivos somente leitura e efêmero). Em produção, use **PostgreSQL**
-(ex.: [Neon](https://neon.tech)) e **Vercel Blob** para as imagens.
+O SQLite não funciona na Vercel (sistema de arquivos somente leitura e efêmero). Em produção, o projeto usa
+**PostgreSQL** ([Neon](https://neon.tech)) e **Vercel Blob** para as imagens, **sem mudar o código**:
 
-### 1. Trocar o banco para PostgreSQL
-1. Crie um banco no Neon e copie a connection string (`postgresql://…?sslmode=require`).
-2. Em `prisma/schema.prisma`, troque `provider = "sqlite"` por `provider = "postgresql"`.
-3. Instale o adapter: `npm install @prisma/adapter-pg`.
-4. Em `src/lib/db.ts`, troque o adapter:
-   ```ts
-   import { PrismaPg } from "@prisma/adapter-pg";
-   const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-   ```
-5. As migrações atuais são de SQLite. Apague `prisma/migrations/` e gere as de PostgreSQL apontando para o Neon:
-   `npx prisma migrate dev --name inicial`. Faça commit da nova pasta.
-6. Popule a produção uma vez, da sua máquina: `npm run seed` com o `DATABASE_URL` do Neon.
+- o `prisma.config.ts` olha a `DATABASE_URL` e escolhe sozinho o schema e as migrações certos: `prisma/` para SQLite e
+  `prisma/postgres/` para PostgreSQL. Os modelos são os mesmos, e um teste garante que os dois schemas não divergem;
+- o `src/lib/db-adapter.ts` escolhe o driver (`better-sqlite3` ou `pg`) pela mesma URL;
+- o script `vercel-build` (`package.json`) aplica as migrações (`prisma migrate deploy`) a cada deploy.
 
-O SQL de estoque (`src/lib/stock.ts`) e o restante do código são compatíveis com os dois bancos.
+> Alterou `prisma/schema.prisma`? Rode `npm run db:pg:sync` para atualizar `prisma/postgres/schema.prisma` e gere a
+> migração do PostgreSQL com `npx prisma migrate dev` apontando para um banco PostgreSQL.
 
-### 2. Projeto na Vercel
-1. Importe o repositório em <https://vercel.com/new>.
-2. **Build Command:** `npx prisma migrate deploy && npm run build`, para aplicar as migrações a cada deploy.
-3. Em **Storage**, crie um **Blob** e conecte ao projeto. O `BLOB_READ_WRITE_TOKEN` é criado sozinho.
-4. Configure as variáveis de ambiente:
+### 1. Projeto, banco e armazenamento
+1. Em <https://vercel.com/new>, importe o repositório do GitHub. O framework (Next.js) é detectado sozinho.
+2. No projeto, em **Storage**:
+   - **Create Database → Neon (Postgres)** e conecte ao projeto. `DATABASE_URL` e `DATABASE_URL_UNPOOLED` são criadas
+     sozinhas;
+   - **Create → Blob** e conecte ao projeto. `BLOB_READ_WRITE_TOKEN` é criada sozinha.
 
-   ```ini
-   DATABASE_URL=postgresql://...
-   NEXT_PUBLIC_SITE_URL=https://sua-loja.vercel.app
-   NEXTAUTH_URL=https://sua-loja.vercel.app
-   NEXTAUTH_SECRET=...
-   MP_ACCESS_TOKEN=...            # teste ou produção
-   NEXT_PUBLIC_MP_PUBLIC_KEY=...
-   MP_WEBHOOK_SECRET=...
-   MP_WEBHOOK_STRICT_SIGNATURE=true   # com credenciais reais, após confirmar que a assinatura confere
-   STORAGE_DRIVER=vercel-blob
-   CRON_SECRET=...                # string aleatória
-   ```
-5. No Mercado Pago, cadastre o webhook `https://sua-loja.vercel.app/api/webhooks/mercadopago`.
-6. O `vercel.json` já agenda o **Vercel Cron** diário que cancela pedidos com reserva vencida. Ele envia o
-   `CRON_SECRET` automaticamente.
+### 2. Variáveis de ambiente (Settings → Environment Variables)
 
-### 3. Antes de vender de verdade
+```ini
+NEXTAUTH_SECRET=...                 # string aleatória
+NEXTAUTH_URL=https://sua-loja.vercel.app
+NEXT_PUBLIC_SITE_URL=https://sua-loja.vercel.app
+MP_ACCESS_TOKEN=...                 # teste ou produção
+NEXT_PUBLIC_MP_PUBLIC_KEY=...
+MP_WEBHOOK_SECRET=...
+MP_WEBHOOK_STRICT_SIGNATURE=false   # true com credenciais reais, após confirmar que a assinatura confere
+STORAGE_DRIVER=vercel-blob
+CRON_SECRET=...                     # string aleatória
+# só para o portfólio público:
+DEMO_MODE=true
+DEMO_ADMIN_EMAIL=demo@nkstore.dev
+DEMO_ADMIN_PASSWORD=...
+```
+
+### 3. Dados iniciais
+- **Portfólio (`DEMO_MODE=true`):** chame a tarefa diária uma vez para popular a loja:
+  `curl -H "Authorization: Bearer $CRON_SECRET" https://sua-loja.vercel.app/api/cron/diario`.
+  Depois disso, o **Vercel Cron** (`vercel.json`) repete o reset todo dia às 3h de Brasília.
+- **Loja real:** rode `npm run seed` uma vez, da sua máquina, com a `DATABASE_URL` do Neon no `.env`. O seed cria o
+  admin do `SEED_ADMIN_*` e o catálogo. Depois, cadastre os produtos reais pelo painel.
+
+### 4. Mercado Pago
+Cadastre o webhook `https://sua-loja.vercel.app/api/webhooks/mercadopago` (evento **Pagamentos**). Com credenciais de
+usuário de teste, use a aba **Modo de produção** do painel de Webhooks.
+
+### Modo demonstração (portfólio público)
+Com `DEMO_MODE=true`:
+- a tela de login do painel mostra o **acesso de demonstração** e um botão "Entrar como visitante";
+- uma faixa avisa, na loja e no painel, que é uma demonstração, e o checkout mostra o **cartão de teste**;
+- as **configurações da loja ficam travadas**, para ninguém trocar WhatsApp ou e-mail por links de terceiros;
+- **todo dia às 3h** (`/api/cron/diario`), a loja volta ao estado inicial:
+  - pedidos, clientes, cupons, produtos e categorias criados por visitantes são apagados;
+  - fotos enviadas são removidas do Blob;
+  - catálogo, configurações e 6 pedidos de exemplo são restaurados, com a numeração voltando para NK-000001.
+
+O reset **se recusa a rodar** sem `DEMO_MODE=true`. No seu computador, para preparar uma apresentação, use
+`npm run demo:reset -- --confirmar` (apaga os pedidos e produtos do `dev.db` e restaura a demonstração).
+
+### Antes de vender de verdade
+- Deixe  (ou remova a variável).
 - Troque para as **credenciais de produção** do Mercado Pago e ligue `MP_WEBHOOK_STRICT_SIGNATURE=true`.
 - Troque o rate limit em memória por **Upstash Redis** (veja [Decisões](#decisões)).
 - Revise os textos de Trocas e Privacidade com os dados reais da empresa (CNPJ, endereço, prazos).
@@ -359,6 +386,13 @@ Quando algo era ambíguo, escolhi a opção mais simples e padrão de mercado.
   `proxy.ts` (o antigo middleware, renomeado no Next 16) **e de novo** em cada página, Server Action e API do painel.
 - **Prisma 7 com driver adapter (`better-sqlite3`).** O SQLite não tem enum, então status, tamanho e tipo de cupom são
   `String`, validados por Zod e por constantes em `src/lib/constants.ts`. Isso funciona sem mudança no PostgreSQL.
+- **Dois bancos, mesmo código:** SQLite no desenvolvimento (zero instalação) e PostgreSQL em produção. Como o Prisma
+  não permite trocar o `provider` por variável de ambiente, há um segundo schema gerado
+  (`prisma/postgres/schema.prisma`, via `npm run db:pg:sync`) com migrações próprias. Um teste garante que os dois não
+  divergem.
+- **Modo demonstração com reset diário** em vez de um painel "somente leitura": o visitante experimenta o fluxo
+  completo (cadastrar produto, mudar status, criar cupom), e o Vercel Cron desfaz tudo uma vez por dia (o plano gratuito
+  da Vercel permite cron diário).
 - **Dinheiro sempre em centavos (Int)**, para não ter erro de arredondamento com ponto flutuante.
 - **Campos derivados no produto** (`finalPrice` e `searchText`, sem acentos e em minúsculas): permitem ordenar por preço
   e buscar sem acento direto no banco. São recalculados sempre que o produto ou a categoria é salvo.
@@ -447,7 +481,7 @@ src/
     admin/             login e painel (dashboard, pedidos, produtos, categorias,
                        clientes, cupons, configurações)
     api/               checkout, frete, cep, cupom, carrinho, webhooks/mercadopago,
-                       cron/expirar-pedidos, admin/upload, auth
+                       cron/diario, admin/upload, auth
     sitemap.ts, robots.ts, opengraph-image.tsx, icon.svg
   components/          loja/, admin/ e componentes comuns
   lib/
@@ -477,8 +511,9 @@ docs/prints/           capturas de tela deste README
 - [x] Páginas de retorno, acompanhamento por número + e-mail e nova tentativa de pagamento
 - [x] Painel: dashboard, produtos (com upload), categorias, pedidos (status + rastreio), clientes, cupons e configurações
 - [x] Páginas institucionais, SEO completo e imagens Open Graph
-- [x] 49 testes automatizados das regras críticas
+- [x] 53 testes automatizados das regras críticas
 - [x] Acessibilidade: 0 violações no axe-core. Lighthouse: 100 em A11y/BP/SEO
+- [x] Modo demonstração para portfólio com reset diário automático
 - [x] Compra testada de ponta a ponta no sandbox, com o pedido virando **Pago** só pelo webhook
 
 ### 🔜 Melhorias futuras

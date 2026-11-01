@@ -1,13 +1,28 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
-export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
+type Props = {
+  callbackUrl: string;
+  /** credenciais do modo demonstração (portfólio), exibidas na tela */
+  demo?: { email: string; password: string } | null;
+};
+
+export function LoginForm({ callbackUrl, demo }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function fillDemo() {
+    const form = formRef.current;
+    if (!form || !demo) return;
+    (form.elements.namedItem("email") as HTMLInputElement).value = demo.email;
+    (form.elements.namedItem("password") as HTMLInputElement).value = demo.password;
+    form.requestSubmit();
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,7 +48,25 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
+    <>
+    {demo && (
+      <div className="mt-8 rounded-[var(--radius-card)] bg-lime-soft p-4 text-sm">
+        <p className="font-semibold">Acesso de demonstração</p>
+        <p className="mt-1 text-ink/80">
+          Explore o painel à vontade: os dados voltam ao original todos os dias.
+        </p>
+        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+          <dt className="text-ink/70">E-mail</dt>
+          <dd className="font-mono font-semibold">{demo.email}</dd>
+          <dt className="text-ink/70">Senha</dt>
+          <dd className="font-mono font-semibold">{demo.password}</dd>
+        </dl>
+        <button type="button" onClick={fillDemo} disabled={loading} className="btn-dark btn-sm mt-4">
+          Entrar como visitante
+        </button>
+      </div>
+    )}
+    <form ref={formRef} onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
       <div>
         <label htmlFor="email" className="label">
           E-mail
@@ -74,5 +107,6 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         {loading ? "Entrando..." : "Entrar"}
       </button>
     </form>
+    </>
   );
 }

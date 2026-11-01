@@ -36,7 +36,7 @@ function loadDraft(): Partial<Fields> {
   }
 }
 
-export function CheckoutForm() {
+export function CheckoutForm({ demo = false }: { demo?: boolean }) {
   const hydrated = useHydrated();
   const state = useCart();
   if (!hydrated) return <div className="mt-8 h-96 animate-pulse rounded-[var(--radius-card)] bg-line/60" aria-label="Carregando" />;
@@ -48,10 +48,10 @@ export function CheckoutForm() {
       </div>
     );
   }
-  return <CheckoutInner />;
+  return <CheckoutInner demo={demo} />;
 }
 
-function CheckoutInner() {
+function CheckoutInner({ demo }: { demo: boolean }) {
   const state = useCart();
   // contato salvo neste navegador (só nome/e-mail/telefone, nunca CPF)
   const [f, setF] = useState<Fields>(() => ({ ...EMPTY, ...loadDraft(), zipCode: formatCep(cart.get().cep) }));
@@ -354,6 +354,16 @@ function CheckoutInner() {
           <p className="mt-3 text-center text-xs text-muted">
             Você será levado ao Mercado Pago para pagar com Pix, cartão ou boleto. O valor final é conferido no servidor.
           </p>
+          {demo && (
+            <div className="mt-4 rounded-xl bg-lime-soft p-3 text-xs leading-relaxed">
+              <p className="font-semibold">Demonstração: pagamento de teste, nenhum valor é cobrado</p>
+              <p className="mt-1">
+                Cartão Visa <span className="font-mono">4235 6477 2802 5682</span>, validade <span className="font-mono">11/30</span>,
+                CVV <span className="font-mono">123</span>, titular <strong>APRO</strong> (aprovado) e CPF{" "}
+                <span className="font-mono">12345678909</span>.
+              </p>
+            </div>
+          )}
         </div>
       </aside>
     </form>
