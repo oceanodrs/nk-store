@@ -55,7 +55,7 @@ const localDriver: StorageDriver = {
   },
 };
 
-/** Produção: Vercel Blob (precisa de BLOB_READ_WRITE_TOKEN). */
+/** Produção: Vercel Blob público (BLOB_STORE_ID + OIDC da Vercel, ou BLOB_READ_WRITE_TOKEN). */
 const vercelBlobDriver: StorageDriver = {
   async save(data, type) {
     const { put } = await import("@vercel/blob");

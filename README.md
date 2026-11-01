@@ -204,7 +204,7 @@ no `.gitignore`.
 | `SHIPPING_PROVIDER` | não | `simulado` (padrão). Interface pronta para `melhorenvio` |
 | `MELHOR_ENVIO_TOKEN` / `MELHOR_ENVIO_ENV` / `MELHOR_ENVIO_USER_AGENT` | não | Reservadas para o provedor Melhor Envio |
 | `STORAGE_DRIVER` | não | `local` (dev) ou `vercel-blob` (produção) |
-| `BLOB_READ_WRITE_TOKEN` | com Vercel Blob | Criado automaticamente ao ligar o Blob no projeto da Vercel |
+| `BLOB_STORE_ID` ou `BLOB_READ_WRITE_TOKEN` | com Vercel Blob | Criado automaticamente ao conectar o Blob ao projeto da Vercel (conexões novas criam `BLOB_STORE_ID` e autenticam via OIDC) |
 
 ---
 
@@ -325,7 +325,7 @@ O SQLite não funciona na Vercel (sistema de arquivos somente leitura e efêmero
 2. No projeto, em **Storage**:
    - **Create Database → Neon (Postgres)** e conecte ao projeto. `DATABASE_URL` e `DATABASE_URL_UNPOOLED` são criadas
      sozinhas;
-   - **Create → Blob** e conecte ao projeto. `BLOB_READ_WRITE_TOKEN` é criada sozinha.
+   - **Create → Blob** com acesso **Public** (fotos de produto são públicas; não dá para mudar depois) e conecte ao projeto. `BLOB_STORE_ID` (ou `BLOB_READ_WRITE_TOKEN`, em conexões antigas) é criada sozinha.
 
 ### 2. Variáveis de ambiente (Settings → Environment Variables)
 

@@ -121,7 +121,9 @@ async function createSampleOrders() {
 }
 
 async function removeUploadedImages() {
-  if (process.env.STORAGE_DRIVER !== "vercel-blob" || !process.env.BLOB_READ_WRITE_TOKEN) return 0;
+  // Blob conectado pela Vercel: BLOB_STORE_ID (+ OIDC automático) ou o token antigo
+  const hasBlob = process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN;
+  if (process.env.STORAGE_DRIVER !== "vercel-blob" || !hasBlob) return 0;
   const { list, del } = await import("@vercel/blob");
   let removed = 0;
   let cursor: string | undefined;
